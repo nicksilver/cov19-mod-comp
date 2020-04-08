@@ -1,1 +1,1 @@
-# cov19-mod-comp
+# Montana Covid-19 Model Comparison
