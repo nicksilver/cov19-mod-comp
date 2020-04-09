@@ -28,12 +28,13 @@ df = ihme.merge(
         how='outer', 
         left_index=True, 
         right_index=True
-        ).merge(
-            umcphr,
-            how='outer',
-            left_index=True,
-            right_index=True
-            )
+        )
+        # .merge(
+        #     umcphr,
+        #     how='outer',
+        #     left_index=True,
+        #     right_index=True
+        #     )
 df = df.interpolate(method='polynomial', order=3)
 df.bfill(0, inplace=True)
 df_stats = calc_stats(df)
@@ -99,10 +100,6 @@ st.markdown(
     - **ihme_mean:** UW Institute for Health Metrics and Evaluation - mean estimate
     
     - **ihme_upper:** UW Institute for Health Metrics and Evaluation - upper estimate
-
-    - **umcphr_2wk:** Univ. of Montana Model - 2wk estimate
-
-    - **umcphr_opt:** Univ. of Montana Model - OPT estimate
     
 
     ### CHIME parameters used
