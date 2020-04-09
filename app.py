@@ -37,6 +37,7 @@ df = ihme.merge(
         #     )
 df = df.interpolate(method='polynomial', order=3)
 df.bfill(0, inplace=True)
+df = df[(df.index >= '2020-03-10') & (df.index <= '2020-07-10')]
 df_stats = calc_stats(df)
 
 if st.checkbox('Show Statistics'):
