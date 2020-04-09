@@ -16,6 +16,7 @@ if mod_var == 'Hospitalizations':
     ihme = IhmeData().get_allbed()
     can = CanData().get_allbed()
     chime = ChimeData().get_allbed()
+    umcphr = UmCphrData().get_allbed()
 
 df = ihme.merge(
     can, 
@@ -27,8 +28,14 @@ df = ihme.merge(
         how='outer', 
         left_index=True, 
         right_index=True
-        )
+        ).merge(
+            umcphr,
+            how='outer',
+            left_index=True,
+            right_index=True
+            )
 df = df.interpolate(method='polynomial', order=3)
+df.bfill(0, inplace=True)
 df_stats = calc_stats(df)
 
 if st.checkbox('Show Statistics'):
@@ -45,14 +52,37 @@ df_melt = pd.melt(
     value_name='Hospitalizations'
 )
 
-chart = alt.Chart(df_melt).mark_line().encode(
-        x='Date',
-        y='Hospitalizations',
-        color='Model',
-        tooltip=['Date', 'Model','Hospitalizations']
-    ).interactive()
+highlight = alt.selection(type='single', on='mouseover',
+                          fields=['Model'], nearest=True)
 
-st.altair_chart(chart, use_container_width=True)
+# chart = alt.Chart(df_melt).mark_line().encode(
+#         x='Date',
+#         y='Hospitalizations',
+#         # color='Model',
+#         color=alt.condition(highlight, 'Model', alt.value("lightgray")),
+#         # tooltip=['Date', 'Model','Hospitalizations']
+#     ).add_selection(highlight)
+
+# st.altair_chart(chart, use_container_width=True)
+
+base = alt.Chart(df_melt).encode(
+    x='Date:T',
+    y='Hospitalizations:Q',
+    color='Model:N',
+    tooltip = ['Date', 'Model','Hospitalizations']
+)
+
+points = base.mark_circle().encode(
+    opacity=alt.value(0)
+).properties(width=600).add_selection(highlight).interactive()
+
+lines = base.mark_line().encode(
+    size=alt.condition(~highlight, alt.value(1), alt.value(3))
+)
+
+final = alt.layer(points, lines)
+
+st.altair_chart(final, use_container_width=True)
 
 st.markdown(
     """
@@ -70,8 +100,13 @@ st.markdown(
     
     - **ihme_upper:** UW Institute for Health Metrics and Evaluation - upper estimate
 
+    - **umcphr_2wk:** Univ. of Montana Model - 2wk estimate
+
+    - **umcphr_opt:** Univ. of Montana Model - OPT estimate
+    
+
     ### CHIME parameters used
-    - pop = 1050493
+    - pop = 1,050,493
 
     - hosp market share = 90
 

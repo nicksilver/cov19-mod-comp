@@ -96,7 +96,7 @@ class CanData(object):
 
 class ChimeData(object):
     """
-    Fetches and processes latest IHME data
+    Fetches and processes downloaded CHIME data
     """
 
     def __init__(self):
@@ -112,5 +112,28 @@ class ChimeData(object):
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed['hospitalized'].to_frame()
         allbed.columns = ['chime']
+        allbed.index = pd.to_datetime(allbed.index)
+        return allbed
+
+
+class UmCphrData(object):
+    """
+    Fetches and processes downloaded Landguth data
+    """
+
+    def __init__(self):
+        self.path = 'data/umcphr/Regionalcovid19model_{}.csv'
+
+    def get_allbed(self):
+        """
+        Get all hospitalizations using beds
+        """
+        new_path = self.path.format('08Apr2020')
+        allbed = pd.read_csv(new_path)
+        allbed.set_index('DateReported', inplace=True)
+        allbed.index = pd.to_datetime(allbed.index)
+        allbed = allbed[allbed['Location'] == 'Montana']
+        allbed = allbed[['PredHosp2wk', 'PredHospOPT']]
+        allbed.columns = ['umcphr_2wk', 'umcphr_opt']
         allbed.index = pd.to_datetime(allbed.index)
         return allbed

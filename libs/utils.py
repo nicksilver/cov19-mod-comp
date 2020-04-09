@@ -5,4 +5,5 @@ def calc_stats(df):
     df_max = df.max().to_frame()
     df_stats = df_dop.merge(df_max, right_index=True, left_index=True)
     df_stats.columns = ['Day of Peak', 'Peak Value']
+    df_stats = df_stats.astype({'Peak Value': 'int'})
     return df_stats
