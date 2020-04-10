@@ -8,7 +8,7 @@ st.title('Montana Covid-19 Model Comparison')
 
 mod_var = st.sidebar.selectbox(
     label = 'Choose Variable',
-    options = ['Hospitalizations'],
+    options = ['Hospitalizations', 'ICU'],
     index = 0
 )
 
@@ -17,24 +17,24 @@ if mod_var == 'Hospitalizations':
     can = CanData().get_allbed()
     chime = ChimeData().get_allbed()
     umcphr = UmCphrData().get_allbed()
+    # mod_list = [ihme, can, chime, umcphr]
+    mod_list = [ihme, can, chime]
+elif mod_var == 'ICU':
+    ihme = IhmeData().get_icubed()
+    chime = ChimeData().get_icubed()
+    umcphr = UmCphrData().get_icubed()
+    # mod_list = [ihme, chime, umcphr]
+    mod_list = [ihme, chime]
 
-df = ihme.merge(
-    can, 
-    how='outer', 
-    left_index=True, 
-    right_index=True
-    ).merge(
-        chime, 
-        how='outer', 
-        left_index=True, 
+df = pd.DataFrame()
+for mod in mod_list:
+    df = df.merge(
+        mod,
+        how='outer',
+        left_index=True,
         right_index=True
         )
-        # .merge(
-        #     umcphr,
-        #     how='outer',
-        #     left_index=True,
-        #     right_index=True
-        #     )
+
 df = df.interpolate(method='polynomial', order=3)
 df.bfill(0, inplace=True)
 df = df[(df.index >= '2020-03-10') & (df.index <= '2020-07-10')]
@@ -51,27 +51,17 @@ df_melt = pd.melt(
     df_melt,
     id_vars='Date',
     var_name='Model',
-    value_name='Hospitalizations'
+    value_name=mod_var
 )
 
 highlight = alt.selection(type='single', on='mouseover',
                           fields=['Model'], nearest=True)
 
-# chart = alt.Chart(df_melt).mark_line().encode(
-#         x='Date',
-#         y='Hospitalizations',
-#         # color='Model',
-#         color=alt.condition(highlight, 'Model', alt.value("lightgray")),
-#         # tooltip=['Date', 'Model','Hospitalizations']
-#     ).add_selection(highlight)
-
-# st.altair_chart(chart, use_container_width=True)
-
 base = alt.Chart(df_melt).encode(
     x='Date:T',
-    y='Hospitalizations:Q',
+    y=mod_var,
     color='Model:N',
-    tooltip = ['Date', 'Model','Hospitalizations']
+    tooltip = ['Date', 'Model', mod_var]
 )
 
 points = base.mark_circle().encode(
@@ -110,7 +100,7 @@ st.markdown(
 
     - current hosp patients = 31
 
-    - 2020/03/13
+    - date of first case = 2020/03/13
 
     - social distance reduction = 30%
 
@@ -124,9 +114,11 @@ st.markdown(
 
     - avg hosp sta = 10
 
-    - avg days in ice = 9
+    - avg days in ICU = 9
 
     - days on vent = 10
 
     """
 )
+
+#TODO values should be in ints

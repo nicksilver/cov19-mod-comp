@@ -31,6 +31,14 @@ class IhmeData(object):
         allbed.index = pd.to_datetime(allbed.index)
         return allbed
 
+    def get_icubed(self):
+        df = self.make_pd()
+        cols = ['ICUbed_lower', 'ICUbed_mean', 'ICUbed_upper']
+        icubed = df[cols]
+        icubed.columns = ['ihme_lower', 'ihme_mean', 'ihme_upper']
+        icubed.index = pd.to_datetime(icubed.index)
+        return icubed
+
 
 class CanData(object):
     """
@@ -94,6 +102,7 @@ class CanData(object):
             allbed.drop(columns=['can_0', 'can_2'], inplace=True)
         return allbed
 
+
 class ChimeData(object):
     """
     Fetches and processes downloaded CHIME data
@@ -111,6 +120,19 @@ class ChimeData(object):
         allbed.set_index('date', inplace=True)
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed['hospitalized'].to_frame()
+        allbed.columns = ['chime']
+        allbed.index = pd.to_datetime(allbed.index)
+        return allbed
+    
+    def get_icubed(self):
+        """
+        Get all ICU beds
+        """
+        new_path = self.path.format('projected_admits')
+        allbed = pd.read_csv(new_path)
+        allbed.set_index('date', inplace=True)
+        allbed.index = pd.to_datetime(allbed.index)
+        allbed = allbed['icu'].to_frame()
         allbed.columns = ['chime']
         allbed.index = pd.to_datetime(allbed.index)
         return allbed
@@ -134,6 +156,20 @@ class UmCphrData(object):
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed[allbed['Location'] == 'Montana']
         allbed = allbed[['PredHosp2wk', 'PredHospOPT']]
+        allbed.columns = ['umcphr_2wk', 'umcphr_opt']
+        allbed.index = pd.to_datetime(allbed.index)
+        return allbed
+
+    def get_icubed(self):
+        """
+        Get all icu beds
+        """
+        new_path = self.path.format('08Apr2020')
+        allbed = pd.read_csv(new_path)
+        allbed.set_index('DateReported', inplace=True)
+        allbed.index = pd.to_datetime(allbed.index)
+        allbed = allbed[allbed['Location'] == 'Montana']
+        allbed = allbed[['PredICU2wk', 'PredICUOPT']]
         allbed.columns = ['umcphr_2wk', 'umcphr_opt']
         allbed.index = pd.to_datetime(allbed.index)
         return allbed
