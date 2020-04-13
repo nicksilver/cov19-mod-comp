@@ -87,7 +87,8 @@ class CanData(object):
     def get_allbed(self, drop_0_2=True):
         can_var = 'all_hospitalized'
         allbed = pd.DataFrame()
-        for i in range(4):
+        scenarios = [1, 3]
+        for i in scenarios:
             can = self.make_pd(i)
             can_allbed = can[can_var]
             allbed = allbed.merge(
@@ -96,10 +97,8 @@ class CanData(object):
                 left_index=True,
                 right_index=True
             )
-        allbed.columns = ['can_0', 'can_1', 'can_2', 'can_3']
+        allbed.columns = ['can_1', 'can_3']
         allbed.index = pd.to_datetime(allbed.index)
-        if drop_0_2:
-            allbed.drop(columns=['can_0', 'can_2'], inplace=True)
         return allbed
 
 
@@ -143,20 +142,21 @@ class UmCphrData(object):
     Fetches and processes downloaded Landguth data
     """
 
-    def __init__(self):
+    def __init__(self, date):
         self.path = 'data/umcphr/Regionalcovid19model_{}.csv'
+        self.date = date
 
     def get_allbed(self):
         """
         Get all hospitalizations using beds
         """
-        new_path = self.path.format('08Apr2020')
+        new_path = self.path.format(self.date)
         allbed = pd.read_csv(new_path)
         allbed.set_index('DateReported', inplace=True)
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed[allbed['Location'] == 'Montana']
-        allbed = allbed[['PredHosp2wk', 'PredHospOPT']]
-        allbed.columns = ['umcphr_2wk', 'umcphr_opt']
+        allbed = allbed[['PredHosp4wk', 'PredHosp3mth', 'PredHospOPT']]
+        allbed.columns = ['umcphr_4wk', 'umcphr_3mth', 'umcphr_opt']
         allbed.index = pd.to_datetime(allbed.index)
         return allbed
 
@@ -164,12 +164,12 @@ class UmCphrData(object):
         """
         Get all icu beds
         """
-        new_path = self.path.format('08Apr2020')
+        new_path = self.path.format(self.date)
         allbed = pd.read_csv(new_path)
         allbed.set_index('DateReported', inplace=True)
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed[allbed['Location'] == 'Montana']
-        allbed = allbed[['PredICU2wk', 'PredICUOPT']]
-        allbed.columns = ['umcphr_2wk', 'umcphr_opt']
+        allbed = allbed[['PredICU4wk', 'PredICU3mth', 'PredICUOPT']]
+        allbed.columns = ['umcphr_4wk', 'umcphr_3mth', 'umcphr_opt']
         allbed.index = pd.to_datetime(allbed.index)
         return allbed

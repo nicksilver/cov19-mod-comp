@@ -12,19 +12,20 @@ mod_var = st.sidebar.selectbox(
     index = 0
 )
 
+umchpr_date = '12Apr2020'
 if mod_var == 'Hospitalizations':
     ihme = IhmeData().get_allbed()
     can = CanData().get_allbed()
     chime = ChimeData().get_allbed()
-    umcphr = UmCphrData().get_allbed()
-    # mod_list = [ihme, can, chime, umcphr]
-    mod_list = [ihme, can, chime]
+    umcphr = UmCphrData(umchpr_date).get_allbed()
+    mod_list = [ihme, can, chime, umcphr]
+    # mod_list = [ihme, can, chime]
 elif mod_var == 'ICU':
     ihme = IhmeData().get_icubed()
     chime = ChimeData().get_icubed()
-    umcphr = UmCphrData().get_icubed()
-    # mod_list = [ihme, chime, umcphr]
-    mod_list = [ihme, chime]
+    umcphr = UmCphrData(umchpr_date).get_icubed()
+    mod_list = [ihme, chime, umcphr]
+    # mod_list = [ihme, chime]
 
 df = pd.DataFrame()
 for mod in mod_list:
