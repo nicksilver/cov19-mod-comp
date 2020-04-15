@@ -12,20 +12,22 @@ mod_var = st.sidebar.selectbox(
     index = 0
 )
 
-umchpr_date = '12Apr2020'
+umchpr_date = '14Apr2020'
 if mod_var == 'Hospitalizations':
     ihme = IhmeData().get_allbed()
-    can = CanData().get_allbed()
+    can = CanData().get_allbed(scenarios=[1, 3])
     chime = ChimeData().get_allbed()
     umcphr = UmCphrData(umchpr_date).get_allbed()
-    mod_list = [ihme, can, chime, umcphr]
-    # mod_list = [ihme, can, chime]
+    # mod_list = [ihme, can, chime, umcphr]
+    mod_list = [ihme, can, chime]
+    # mod_list = [ihme, can, umcphr]
 elif mod_var == 'ICU':
     ihme = IhmeData().get_icubed()
     chime = ChimeData().get_icubed()
     umcphr = UmCphrData(umchpr_date).get_icubed()
-    mod_list = [ihme, chime, umcphr]
-    # mod_list = [ihme, chime]
+    # mod_list = [ihme, chime, umcphr]
+    mod_list = [ihme, chime]
+    # mod_list = [ihme, umcphr]
 
 df = pd.DataFrame()
 for mod in mod_list:
@@ -39,6 +41,7 @@ for mod in mod_list:
 df = df.interpolate(method='polynomial', order=3)
 df.bfill(0, inplace=True)
 df = df[(df.index >= '2020-03-10') & (df.index <= '2020-07-10')]
+# df.to_csv('data/modcom_hospitalizations_04142020.csv')
 df_stats = calc_stats(df)
 
 if st.checkbox('Show Statistics'):

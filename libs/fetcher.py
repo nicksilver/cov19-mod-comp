@@ -84,10 +84,10 @@ class CanData(object):
         can.set_index('date', inplace=True)
         return can
             
-    def get_allbed(self, drop_0_2=True):
+    def get_allbed(self, drop_0_2=True, scenarios=[1, 3]):
         can_var = 'all_hospitalized'
         allbed = pd.DataFrame()
-        scenarios = [1, 3]
+        scenarios = scenarios
         for i in scenarios:
             can = self.make_pd(i)
             can_allbed = can[can_var]
@@ -97,7 +97,7 @@ class CanData(object):
                 left_index=True,
                 right_index=True
             )
-        allbed.columns = ['can_1', 'can_3']
+        allbed.columns = ['can_' + str(i) for i in scenarios]
         allbed.index = pd.to_datetime(allbed.index)
         return allbed
 
