@@ -9,6 +9,9 @@ __pycache__/
 #VSCode
 .vscode/
 
+#Hidden env variables
+envvars.json
+
 #Archived data
 archive/
 

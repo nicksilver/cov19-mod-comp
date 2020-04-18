@@ -142,16 +142,15 @@ class UmCphrData(object):
     Fetches and processes downloaded Landguth data
     """
 
-    def __init__(self, date):
-        self.path = 'data/umcphr/Regionalcovid19model_{}.csv'
-        self.date = date
+    def __init__(self):
+        self.path = 'data/umcphr/mt_region_hosp_icu_vent.csv'
 
     def get_allbed(self):
         """
         Get all hospitalizations using beds
         """
-        new_path = self.path.format(self.date)
-        allbed = pd.read_csv(new_path)
+
+        allbed = pd.read_csv(self.path)
         allbed.set_index('DateReported', inplace=True)
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed[allbed['Location'] == 'Montana']
@@ -164,8 +163,8 @@ class UmCphrData(object):
         """
         Get all icu beds
         """
-        new_path = self.path.format(self.date)
-        allbed = pd.read_csv(new_path)
+        
+        allbed = pd.read_csv(self.path)
         allbed.set_index('DateReported', inplace=True)
         allbed.index = pd.to_datetime(allbed.index)
         allbed = allbed[allbed['Location'] == 'Montana']
